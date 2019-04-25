@@ -1,0 +1,12 @@
+p#tagline {
+  font-size: 18px;
+  color: gray;
+  line-height: 25px;
+  margin-top: 5px;
+}
+img#brand_img {
+  width: 250px;
+}
+.header .page_inner{
+  padding: 20px;
+}

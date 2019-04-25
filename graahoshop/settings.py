@@ -15,7 +15,6 @@ from oscar.defaults import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 location = lambda x: os.path.join(
 os.path.dirname(os.path.realpath(__file__)), x)
@@ -68,15 +67,15 @@ AUTHENTICATION_BACKENDS = (
 
 ROOT_URLCONF = 'graahoshop.urls'
 from oscar import OSCAR_MAIN_TEMPLATE_DIR
-
+# location2 = lambda x: os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', x)
+# print(location2('templates'))
+# print(location('static'))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            TEMPLATES_DIR,
-            location('templates'),
+            os.path.join(BASE_DIR,'templates'),
             OSCAR_MAIN_TEMPLATE_DIR,
-            
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -156,7 +155,11 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 STATIC_URL = '/static/'
-STATIC_ROOT = location('static')
+STATIC_DIR = os.path.join(BASE_DIR, 'static')
+STATICFILES_DIRS = [
+    STATIC_DIR,
+]
+# STATIC_ROOT = location('static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = location('media')
 THUMBNAIL_DEBUG = True
@@ -165,4 +168,4 @@ OSCAR_MISSING_IMAGE_URL = MEDIA_URL + 'image_not_found.jpg'
 
 
 OSCAR_SHOP_NAME = 'Graaho'
-OSCAR_SHOP_TAGLINE = 'A trusted e-commerce site'
+OSCAR_SHOP_TAGLINE = 'A trusted e-commerce'
