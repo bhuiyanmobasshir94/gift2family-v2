@@ -15,6 +15,7 @@ from oscar.defaults import *
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 
 location = lambda x: os.path.join(
 os.path.dirname(os.path.realpath(__file__)), x)
@@ -72,8 +73,10 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
+            TEMPLATES_DIR,
             location('templates'),
             OSCAR_MAIN_TEMPLATE_DIR,
+            
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -158,3 +161,8 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = location('media')
 THUMBNAIL_DEBUG = True
 THUMBNAIL_KEY_PREFIX = 'oscar-sandbox'
+OSCAR_MISSING_IMAGE_URL = MEDIA_URL + 'image_not_found.jpg'
+
+
+OSCAR_SHOP_NAME = 'Graaho'
+OSCAR_SHOP_TAGLINE = 'A trusted e-commerce site'
