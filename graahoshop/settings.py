@@ -11,11 +11,12 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-import environ
+# import environ
 import oscar
 from oscar.defaults import *
+from decimal import Decimal as D
 
-env = environ.Env()
+# env = environ.Env()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -28,7 +29,8 @@ os.path.dirname(os.path.realpath(__file__)), x)
 SECRET_KEY = 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env.bool('DEBUG', default=True)
+# DEBUG = env.bool('DEBUG', default=True)
+DEBUG = True
 
 ALLOWED_HOSTS = []
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -48,7 +50,8 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'widget_tweaks',
     'paypal',
-]+ get_core_apps()
+    'oscar_accounts'
+] + get_core_apps(['apps.shipping'])
 
 SITE_ID = 1
 gettext_noop = lambda s: s
@@ -100,6 +103,7 @@ AUTHENTICATION_BACKENDS = (
 
 ROOT_URLCONF = 'graahoshop.urls'
 from oscar import OSCAR_MAIN_TEMPLATE_DIR
+from oscar_accounts import TEMPLATE_DIR as ACCOUNTS_TEMPLATE_DIR
 # location2 = lambda x: os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', x)
 # print(location2('templates'))
 # print(location('static'))
@@ -109,6 +113,7 @@ TEMPLATES = [
         'DIRS': [
             os.path.join(BASE_DIR,'templates'),
             OSCAR_MAIN_TEMPLATE_DIR,
+            ACCOUNTS_TEMPLATE_DIR,
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -207,3 +212,42 @@ STATICFILES_FINDERS = (
 
 OSCAR_SHOP_NAME = 'Graaho'
 OSCAR_SHOP_TAGLINE = 'A trusted e-commerce'
+
+OSCAR_DASHBOARD_NAVIGATION[1]['children'].append({
+    'label': 'Shipping',
+    'url_name': 'dashboard:shipping-method-list'
+})
+
+OSCAR_DASHBOARD_NAVIGATION.append(
+    {
+        'label': 'Accounts',
+        'icon': 'icon-globe',
+        'children': [
+            {
+                'label': 'Accounts',
+                'url_name': 'accounts-list',
+            },
+            {
+                'label': 'Transfers',
+                'url_name': 'transfers-list',
+            },
+            {
+                'label': 'Deferred income report',
+                'url_name': 'report-deferred-income',
+            },
+            {
+                'label': 'Profit/loss report',
+                'url_name': 'report-profit-loss',
+            },
+        ]
+    })
+
+ACCOUNTS_UNIT_NAME = 'Wallet'
+ACCOUNTS_UNIT_NAME_PLURAL = 'Wallets'
+ACCOUNTS_MIN_LOAD_VALUE = D('30.00')
+ACCOUNTS_MAX_ACCOUNT_VALUE = D('1000.00')
+
+# try:
+#     from settings_local import *
+# except ImportError:
+#     pass
