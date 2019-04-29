@@ -9,5 +9,6 @@ urlpatterns = [
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^admin/', admin.site.urls),
     url(r'', application.urls),
-    # path('', application.urls),  # > Django-2.0
+    url(r'^checkout/paypal/', include('paypal.express.urls')),
+
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

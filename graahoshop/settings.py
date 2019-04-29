@@ -11,8 +11,11 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import environ
+import oscar
 from oscar.defaults import *
 
+env = environ.Env()
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,9 +28,10 @@ os.path.dirname(os.path.realpath(__file__)), x)
 SECRET_KEY = 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DEBUG', default=True)
 
 ALLOWED_HOSTS = []
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
 # Application definition
@@ -43,11 +47,34 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.flatpages',
     'widget_tweaks',
-    
+    'paypal',
 ]+ get_core_apps()
 
 SITE_ID = 1
-
+gettext_noop = lambda s: s
+LANGUAGES = (
+    ('ar', gettext_noop('Arabic')),
+    ('ca', gettext_noop('Catalan')),
+    ('cs', gettext_noop('Czech')),
+    ('da', gettext_noop('Danish')),
+    ('de', gettext_noop('German')),
+    ('en-gb', gettext_noop('British English')),
+    ('el', gettext_noop('Greek')),
+    ('es', gettext_noop('Spanish')),
+    ('fi', gettext_noop('Finnish')),
+    ('fr', gettext_noop('French')),
+    ('it', gettext_noop('Italian')),
+    ('ko', gettext_noop('Korean')),
+    ('nl', gettext_noop('Dutch')),
+    ('pl', gettext_noop('Polish')),
+    ('pt', gettext_noop('Portuguese')),
+    ('pt-br', gettext_noop('Brazilian Portuguese')),
+    ('ro', gettext_noop('Romanian')),
+    ('ru', gettext_noop('Russian')),
+    ('sk', gettext_noop('Slovak')),
+    ('uk', gettext_noop('Ukrainian')),
+    ('zh-cn', gettext_noop('Simplified Chinese')),
+)
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -58,6 +85,12 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'oscar.apps.basket.middleware.BasketMiddleware',
     'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+    'django.middleware.common.CommonMiddleware',
+
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -85,13 +118,15 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.i18n',
-
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
                 'oscar.apps.search.context_processors.search_form',
                 'oscar.apps.promotions.context_processors.promotions',
                 'oscar.apps.checkout.context_processors.checkout',
                 'oscar.apps.customer.notifications.context_processors.notifications',
                 'oscar.core.context_processors.metadata',
             ],
+            'debug': DEBUG,
         },
     },
 ]
@@ -165,7 +200,10 @@ MEDIA_ROOT = location('media')
 THUMBNAIL_DEBUG = True
 THUMBNAIL_KEY_PREFIX = 'oscar-sandbox'
 OSCAR_MISSING_IMAGE_URL = MEDIA_URL + 'image_not_found.jpg'
-
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+)
 
 OSCAR_SHOP_NAME = 'Graaho'
 OSCAR_SHOP_TAGLINE = 'A trusted e-commerce'
