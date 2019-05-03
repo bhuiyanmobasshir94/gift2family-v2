@@ -32,7 +32,7 @@ SECRET_KEY = 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!'
 # DEBUG = env.bool('DEBUG', default=True)
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 
@@ -51,7 +51,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'paypal',
     'oscar_accounts'
-] + get_core_apps(['apps.shipping'])
+] + get_core_apps(['apps.shipping','apps.checkout'])
 
 SITE_ID = 1
 gettext_noop = lambda s: s
@@ -244,7 +244,7 @@ OSCAR_DASHBOARD_NAVIGATION.append(
 
 ACCOUNTS_UNIT_NAME = 'Wallet'
 ACCOUNTS_UNIT_NAME_PLURAL = 'Wallets'
-ACCOUNTS_MIN_LOAD_VALUE = D('30.00')
+ACCOUNTS_MIN_LOAD_VALUE = D('20.00')
 ACCOUNTS_MAX_ACCOUNT_VALUE = D('1000.00')
 
 # try:
