@@ -39,6 +39,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # Application definition
 from oscar import get_core_apps
 
+AUTH_USER_MODEL = "user.User"
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,8 +52,9 @@ INSTALLED_APPS = [
     'django.contrib.flatpages',
     'widget_tweaks',
     'paypal',
-    'oscar_accounts'
-] + get_core_apps(['apps.shipping','apps.checkout'])
+    'oscar_accounts',
+    'apps.user',
+] + get_core_apps(['apps.shipping', 'apps.checkout'])
 
 SITE_ID = 1
 gettext_noop = lambda s: s
@@ -201,10 +204,11 @@ STATICFILES_DIRS = [
 ]
 # STATIC_ROOT = location('static')
 MEDIA_URL = '/media/'
-MEDIA_ROOT = location('media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 THUMBNAIL_DEBUG = True
 THUMBNAIL_KEY_PREFIX = 'oscar-sandbox'
-OSCAR_MISSING_IMAGE_URL = MEDIA_URL + 'image_not_found.jpg'
+OSCAR_MISSING_IMAGE_URL = os.path.join(
+    MEDIA_ROOT, 'image_not_found.jpg')
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -213,30 +217,57 @@ STATICFILES_FINDERS = (
 OSCAR_SHOP_NAME = 'Graaho'
 OSCAR_SHOP_TAGLINE = 'A trusted e-commerce'
 
+from django.utils.translation import ugettext_lazy as _
+
 OSCAR_DASHBOARD_NAVIGATION[1]['children'].append({
-    'label': 'Shipping',
+    'label': _('Shipping'),
     'url_name': 'dashboard:shipping-method-list'
 })
 
 OSCAR_DASHBOARD_NAVIGATION.append(
     {
-        'label': 'Accounts',
+        'label': _('Agents'),
+        'icon': 'icon-group',
+        'children': [
+            {
+                'label': _('Agents'),
+                'url_name': 'agents_dashboard:agents-list',
+                'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
+            },
+            {
+                'label': _('Transactions'),
+                'url_name': 'transfers-list',
+            },
+        ]
+    })
+
+OSCAR_DASHBOARD_NAVIGATION.append(
+    {
+        'label': _('Admin'),
+        'icon': 'icon-dashboard',
+        'url_name': 'admin:login',
+        'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
+    })
+
+OSCAR_DASHBOARD_NAVIGATION.append(
+    {
+        'label': _('Accounts'),
         'icon': 'icon-globe',
         'children': [
             {
-                'label': 'Accounts',
+                'label': _('Accounts'),
                 'url_name': 'accounts-list',
             },
             {
-                'label': 'Transfers',
+                'label': _('Transfers'),
                 'url_name': 'transfers-list',
             },
             {
-                'label': 'Deferred income report',
+                'label': _('Deferred income report'),
                 'url_name': 'report-deferred-income',
             },
             {
-                'label': 'Profit/loss report',
+                'label': _('Profit/loss report'),
                 'url_name': 'report-profit-loss',
             },
         ]
@@ -245,7 +276,7 @@ OSCAR_DASHBOARD_NAVIGATION.append(
 ACCOUNTS_UNIT_NAME = 'Wallet'
 ACCOUNTS_UNIT_NAME_PLURAL = 'Wallets'
 ACCOUNTS_MIN_LOAD_VALUE = D('20.00')
-ACCOUNTS_MAX_ACCOUNT_VALUE = D('1000.00')
+ACCOUNTS_MAX_ACCOUNT_VALUE = D('5000.00')
 
 # try:
 #     from settings_local import *
