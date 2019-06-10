@@ -136,6 +136,7 @@ class AgentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AgentDetailView, self).get_context_data(**kwargs)
-        ctx['account'] = self.account
-        ctx['transactions'] = self.account.transactions.all().order_by('-date_created')
+        if self.account:
+            ctx['account'] = self.account
+            ctx['transactions'] = self.account.transactions.all().order_by('-date_created')
         return ctx
