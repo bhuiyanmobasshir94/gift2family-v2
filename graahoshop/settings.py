@@ -1,3 +1,4 @@
+import dj_database_url
 """
 Django settings for graahoshop project.
 
@@ -26,11 +27,14 @@ os.path.dirname(os.path.realpath(__file__)), x)
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!'
+# SECRET_KEY = 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = env.bool('DEBUG', default=True)
-DEBUG = True
+# DEBUG = True
+
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'r3ba0g-ijf^l@y62as5x@c8uqnw*(p0ass^4g4yflqoh%31#r!')
+DEBUG = os.environ.get('DJANGO_DEBUG', '') != 'False'
 
 ALLOWED_HOSTS = ['*']
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -96,7 +100,6 @@ MIDDLEWARE = [
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.common.CommonMiddleware',
-
 ]
 
 AUTHENTICATION_BACKENDS = (
@@ -330,3 +333,18 @@ ACCOUNTS_REDEMPTIONS_NAME = 'Redemptions'
 ACCOUNTS_LAPSED_NAME = 'Lapsed accounts'
 ACCOUNTS_BANK_NAME = 'Bank'
 ACCOUNTS_UNPAID_SOURCES = 'Unpaid source'
+
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SECURE_BROWSER_XSS_FILTER = True
+# SECURE_HSTS_SECONDS
+SECURE_SSL_REDIRECT = True
+SESSION_COOKIE_SECURE =  True
+CSRF_COOKIE_SECURE = True
+X_FRAME_OPTIONS =  'DENY'
+
+
+# Heroku: Update database configuration from $DATABASE_URL.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'

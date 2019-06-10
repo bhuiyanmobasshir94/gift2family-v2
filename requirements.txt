@@ -1,6 +1,7 @@
 Babel==2.6.0
 certifi==2019.3.9
 chardet==3.0.4
+dj-database-url==0.5.0
 Django==2.0.13
 django-debug-toolbar==1.11
 django-extra-views==0.11.0
@@ -16,11 +17,13 @@ django-widget-tweaks==1.4.3
 environ==1.0
 factory-boy==2.11.1
 Faker==1.0.5
+gunicorn==19.9.0
 idna==2.8
 mock==2.0.0
 pbr==5.2.0
 phonenumbers==8.10.10
 Pillow==6.0.0
+psycopg2-binary==2.8.2
 purl==1.5
 pycountry==18.12.8
 python-dateutil==2.8.0

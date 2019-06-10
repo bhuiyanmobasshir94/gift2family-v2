@@ -1,0 +1,1 @@
+web: gunicorn graahoshop.wsgi --log-file -
