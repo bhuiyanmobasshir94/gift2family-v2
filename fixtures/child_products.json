@@ -453,7 +453,7 @@
     "pk": 1, 
     "model": "partner.stockrecord", 
     "fields": {
-        "price_currency": "GBP", 
+        "price_currency": "USD", 
         "product": 6, 
         "partner_sku": "clf-large", 
         "price_retail": null, 
@@ -471,7 +471,7 @@
     "pk": 2, 
     "model": "partner.stockrecord", 
     "fields": {
-        "price_currency": "GBP", 
+        "price_currency": "USD", 
         "product": 7, 
         "partner_sku": "clf-med", 
         "price_retail": null, 
@@ -489,7 +489,7 @@
     "pk": 3, 
     "model": "partner.stockrecord", 
     "fields": {
-        "price_currency": "GBP", 
+        "price_currency": "USD", 
         "product": 9, 
         "partner_sku": "tng-small", 
         "price_retail": null, 
@@ -507,7 +507,7 @@
     "pk": 4, 
     "model": "partner.stockrecord", 
     "fields": {
-        "price_currency": "GBP", 
+        "price_currency": "USD", 
         "product": 10, 
         "partner_sku": "tng-med", 
         "price_retail": null, 
@@ -525,7 +525,7 @@
     "pk": 5, 
     "model": "partner.stockrecord", 
     "fields": {
-        "price_currency": "GBP", 
+        "price_currency": "USD", 
         "product": 11, 
         "partner_sku": "tng-large", 
         "price_retail": null, 

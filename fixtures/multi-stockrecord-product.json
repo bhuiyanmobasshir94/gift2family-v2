@@ -78,7 +78,7 @@
     "pk": 1,
     "model": "partner.stockrecord",
     "fields": {
-        "price_currency": "GBP",
+        "price_currency": "USD",
         "product": 1,
         "partner_sku": "a1",
         "price_retail": null,
@@ -96,7 +96,7 @@
     "pk": 2,
     "model": "partner.stockrecord",
     "fields": {
-        "price_currency": "GBP",
+        "price_currency": "USD",
         "product": 1,
         "partner_sku": "a2",
         "price_retail": null,
