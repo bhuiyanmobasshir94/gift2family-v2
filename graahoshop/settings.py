@@ -217,7 +217,7 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 )
 
-OSCAR_SHOP_NAME = 'Graaho'
+OSCAR_SHOP_NAME = 'Gift2Family'
 OSCAR_SHOP_TAGLINE = 'A trusted e-commerce'
 
 from django.utils.translation import ugettext_lazy as _
