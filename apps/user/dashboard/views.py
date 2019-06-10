@@ -130,12 +130,16 @@ class AgentDetailView(DetailView):
     context_object_name = 'customer'
 
     def get(self, request, *args, **kwargs):
+        try:
+            self.account = Account.objects.get(id=kwargs['pk'])
+        except Account.DoesNotExist:
+            self.account = None
         return super(AgentDetailView, self).get(
             request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         ctx = super(AgentDetailView, self).get_context_data(**kwargs)
-        self.account = get_object_or_404(Account, id=kwargs['pk'])
+        
         if self.account.transactions:
             ctx['account'] = self.account
             ctx['transactions'] = self.account.transactions.all().order_by('-date_created')
