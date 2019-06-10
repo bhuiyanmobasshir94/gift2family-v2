@@ -131,7 +131,9 @@ class AgentDetailView(DetailView):
 
     def get(self, request, *args, **kwargs):
         try:
-            self.account = Account.objects.get(id=kwargs['pk'])
+            from apps.user.models import User
+            requested_user = User.objects.get(id=kwargs['pk'])
+            self.account = Account.objects.get(primary_user=requested_user) 
         except Account.DoesNotExist:
             self.account = None
         return super(AgentDetailView, self).get(
