@@ -157,6 +157,7 @@ DATABASES = {
     }
 }
 
+ATOMIC_REQUESTS = True
 HAYSTACK_CONNECTIONS = {
     'default': {
         'ENGINE': 'haystack.backends.simple_backend.SimpleEngine',
@@ -186,7 +187,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Dhaka'
 
 USE_I18N = True
 
@@ -207,8 +208,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 THUMBNAIL_DEBUG = True
 THUMBNAIL_KEY_PREFIX = 'oscar-sandbox'
-OSCAR_MISSING_IMAGE_URL = os.path.join(
-    MEDIA_ROOT, 'image_not_found.jpg')
+OSCAR_MISSING_IMAGE_URL = 'image_not_found.jpg'
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
@@ -273,6 +273,7 @@ OSCAR_DASHBOARD_NAVIGATION.append(
         ]
     })
 
+OSCAR_DEFAULT_CURRENCY = 'USD'
 ACCOUNTS_UNIT_NAME = 'Wallet'
 ACCOUNTS_UNIT_NAME_PLURAL = 'Wallets'
 ACCOUNTS_MIN_LOAD_VALUE = D('20.00')
@@ -282,3 +283,50 @@ ACCOUNTS_MAX_ACCOUNT_VALUE = D('5000.00')
 #     from settings_local import *
 # except ImportError:
 #     pass
+
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(message)s'
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose'
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'oscar.checkout': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        'accounts': {
+            'handlers': ['console'],
+            'propagate': False,
+            'level': 'DEBUG',
+        },
+    }
+}
+
+ACCOUNTS_REDEMPTIONS_NAME = 'Redemptions'
+ACCOUNTS_LAPSED_NAME = 'Lapsed accounts'
+ACCOUNTS_BANK_NAME = 'Bank'
+ACCOUNTS_UNPAID_SOURCES = 'Unpaid source'
