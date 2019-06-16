@@ -12,11 +12,19 @@ from oscar_accounts.views import AccountBalanceView
 from oscar.core.loading import get_class
 from apps.user.decorators import agent_login_required
 
-
 wallet_view = get_class(
     'apps.user.views', 'WalletView')
+agent_profile_view = get_class(
+    'apps.user.views', 'AgentProfileView')
+agent_profile_update_view = get_class(
+    'apps.user.views', 'AgentProfileUpdateView')
 
 urlpatterns = [
     url(r'^wallet/', agent_login_required(wallet_view.as_view()),
     name='account-view'),
+    url(r'^agent-profile/', agent_login_required(agent_profile_view.as_view()),
+        name='agent-profile-view'),
+    url(r'^agent-profile-update/', agent_login_required(agent_profile_update_view.as_view()),
+        name='agent-profile-update-view'),
+
 ]

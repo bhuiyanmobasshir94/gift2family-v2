@@ -1,5 +1,5 @@
 from django.conf.urls import include, url  # < Django-2.0
-# from django.urls import include, path  # > Django-2.0
+from django.urls import path, re_path  # > Django-2.0
 from django.contrib import admin
 from oscar.app import application
 from django.conf import settings
