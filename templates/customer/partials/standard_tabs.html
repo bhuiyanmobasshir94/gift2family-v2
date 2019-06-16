@@ -23,10 +23,11 @@
 <li{% if active_tab == 'wallet' %} class="active" {% endif %}>
     <a href="{% url 'account-view' %}">{% trans "Wallet" %}</a>
 </li>
+{%if user.agentprofile%}
 <li{% if active_tab == 'agent-profile' %} class="active" {% endif %}>
     <a href="{% url 'agent-profile-view' %}">{% trans "Agent Profile" %}</a>
 </li>
-
+{%endif%}
 {%endif%}
 {% iffeature 'wishlists' %}
 <li{% if active_tab == 'wishlists' %} class="active" {% endif %}>

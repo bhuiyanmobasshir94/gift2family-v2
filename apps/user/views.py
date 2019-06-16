@@ -73,7 +73,7 @@ class AgentProfileView(generic.TemplateView):
             try:
                 profile = profile_class.objects.get(user=user)
             except profile_class.DoesNotExist:
-                profile = profile_class(user=user)
+                profile = None
 
             field_names = [f.name for f in profile._meta.local_fields]
             for field_name in field_names:
