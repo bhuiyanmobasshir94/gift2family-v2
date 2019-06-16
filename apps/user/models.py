@@ -45,7 +45,7 @@ class User(AbstractUser):
     objects = UserManager()
 
     def get_full_name(self):
-        full_name = '%s %s' % (self.last_name.upper(), self.first_name)
+        full_name = '%s %s' % (self.last_name, self.first_name)
         return full_name.strip()
 
 
