@@ -19,7 +19,7 @@
 <li{% if active_tab == 'notifications' %} class="active" {% endif %}>
                     <a href="{% url 'customer:notifications-inbox' %}">{% trans "Notifications" %}</a>
                     </li>
-{%if not user.is_agent and not has_agent_profile %}
+{%if not user.is_agent and not user.agentprofile.name and not user.agentprofile.email%}
 <li{% if active_tab == 'agent-request-form' %} class="active" {% endif %}>
     <a href="{% url 'agent-profile-create-view' %}">{% trans "Agent Request Form" %}</a>
 </li>

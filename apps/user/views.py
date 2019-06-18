@@ -16,6 +16,7 @@ CommunicationEventType = get_model('customer', 'CommunicationEventType')
 
 
 Wallet = get_model('oscar_accounts', 'Account')
+country = get_model('address','Country')
 
 User = get_user_model()
 from .models import AgentProfile
@@ -119,11 +120,12 @@ class AgentProfileUpdateView(generic.FormView):
             agentprofile = AgentProfile.objects.get(user=self.request.user)
             kwargs['user'] = agentprofile
         except AgentProfile.DoesNotExist:
-            kwargs['user'] = self.request.user
+            agentprofile = AgentProfile.objects.create(
+                user=self.request.user, country=country.objects.get(printable_name="Bangladesh"))
+            kwargs['user'] = agentprofile
         return kwargs
 
     def form_valid(self, form):
-
         form.save(commit=True)
         messages.success(self.request, _("Agent Profile Updated"))
         return redirect(self.get_success_url())
@@ -135,40 +137,28 @@ class AgentRequestFormView(generic.FormView):
     page_title = _('Agent Request Form')
     active_tab = 'agent-request-form'
     success_url = reverse_lazy('customer:profile-view')
-
-    def post(self, request, *args, **kwargs):
-        agentprofile = AgentProfile.objects.create(user=self.request.user)
-        form = self.form_class(
-            request.POST, request.FILES, isinstance=agentprofile)
-        if form.is_valid():
-            form.save()
-            return redirect(self.get_success_url())
-        return render(request, self.template_name, self.get_context_data())
         
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
         ctx['active_tab'] = self.active_tab
         ctx['page_title'] = self.page_title
         ctx['includes_files'] = True
-        try:
-            AgentProfile.objects.get(user=self.request.user)
-            ctx['has_agent_profile'] = True
-        except AgentProfile.DoesNotExist:
-            ctx['has_agent_profile'] = False
         return ctx
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         try:
-            agentprofile = AgentProfile.objects.get(user=self.request.user)
+            agentprofile = AgentProfile.objects.get(
+                user=self.request.user)
             kwargs['user'] = agentprofile
         except AgentProfile.DoesNotExist:
-            kwargs['user'] = self.request.user
+            agentprofile = AgentProfile.objects.create(
+                user=self.request.user, country=country.objects.get(printable_name="Bangladesh"))
+            kwargs['user'] = agentprofile
         return kwargs
 
     def form_valid(self, form):
-        agentprofile = form.save(commit=False)
-        agentprofile.save()
+        form.save(commit=True)
         messages.success(self.request, _("Agent Profile Created"))
         return redirect(self.get_success_url())
 

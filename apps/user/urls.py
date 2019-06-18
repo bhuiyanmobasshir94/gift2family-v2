@@ -10,7 +10,7 @@ from django.apps import apps
 from oscar_accounts.dashboard.app import application as accounts_app
 from oscar_accounts.views import AccountBalanceView
 from oscar.core.loading import get_class
-from apps.user.decorators import agent_login_required
+from apps.user.decorators import agent_login_required, non_agent_login_required
 
 wallet_view = get_class(
     'apps.user.views', 'WalletView')
@@ -28,7 +28,7 @@ urlpatterns = [
         name='agent-profile-view'),
     url(r'^agent-profile-update/', agent_login_required(agent_profile_update_view.as_view()),
         name='agent-profile-update-view'),
-    url(r'^agent-profile-create/', agent_profile_create_view.as_view(),
+    url(r'^agent-profile-create/', non_agent_login_required(agent_profile_create_view.as_view()),
         name='agent-profile-create-view'),
 
 ]
