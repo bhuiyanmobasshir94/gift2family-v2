@@ -13,12 +13,16 @@ class AgentsDashboardApplication(Application):
     agents_view = views.IndexView
     agent_detail_view = views.AgentDetailView
     change_agent_status = views.change_agent_status
+    agent_request_view = views.AgentRequestView
 
     def get_urls(self):
         urls = [
             url(r'^$',
                 self.agents_view.as_view(),
                 name='agents-list'),
+            url(r'^requests/$',
+                self.agent_request_view.as_view(),
+                name='agent-request-view'),
             url(r'^(?P<pk>-?\d+)/$',
                 self.agent_detail_view.as_view(), name='agent-detail'),
             url(r'^(?P<pk>-?\d+)/change-agent-status/$',

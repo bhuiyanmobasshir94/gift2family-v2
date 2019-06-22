@@ -238,6 +238,11 @@ OSCAR_DASHBOARD_NAVIGATION.append(
                 'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
             },
             {
+                'label': _('Agent Requests'),
+                'url_name': 'agents_dashboard:agent-request-view',
+                'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
+            },
+            {
                 'label': _('Transactions'),
                 'url_name': 'transfers-list',
             },

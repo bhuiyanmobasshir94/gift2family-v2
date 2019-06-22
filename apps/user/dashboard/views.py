@@ -67,7 +67,7 @@ class IndexView(BulkEditMixin, FormMixin, SingleTableView):
     def apply_search(self, queryset):
         # Set initial queryset description, used for template context
         self.desc_ctx = {
-            'main_filter': _('All users'),
+            'main_filter': _('All agents'),
             'email_filter': '',
             'name_filter': '',
         }
@@ -176,4 +176,100 @@ def change_agent_status(self, request, *args, **kwargs):
             'agents_dashboard:agent-detail', kwargs={'pk': kwargs['pk']}
         )
         # return redirect('agents_dashboard:agent-detail')
+
+
+class AgentRequestView(BulkEditMixin, FormMixin, SingleTableView):
+    template_name = 'agents/dashboard/request_index.html'
+    table_pagination = True
+    model = User
+    actions = ('make_active', 'make_inactive', )
+    form_class = UserSearchForm
+    table_class = UserTable
+    context_table_name = 'users'
+    desc_template = _('%(main_filter)s %(email_filter)s %(name_filter)s')
+    description = ''
+
+    def dispatch(self, request, *args, **kwargs):
+        form_class = self.get_form_class()
+        self.form = self.get_form(form_class)
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        """
+        Only bind search form if it was submitted.
+        """
+        kwargs = super().get_form_kwargs()
+
+        if 'search' in self.request.GET:
+            kwargs.update({
+                'data': self.request.GET,
+            })
+
+        return kwargs
+
+    def get_queryset(self):
+        queryset = self.model.objects.filter(
+            is_agent=False).order_by('-date_joined')
+        return self.apply_search(queryset)
+
+    def apply_search(self, queryset):
+        # Set initial queryset description, used for template context
+        self.desc_ctx = {
+            'main_filter': _('All agent requests'),
+            'email_filter': '',
+            'name_filter': '',
+        }
+        if self.form.is_valid():
+            return self.apply_search_filters(queryset, self.form.cleaned_data)
+        else:
+            return queryset
+
+    def apply_search_filters(self, queryset, data):
+        """
+        Function is split out to allow customisation with little boilerplate.
+        """
+        if data['email']:
+            email = data['email']
+            queryset = queryset.filter(email__istartswith=email)
+            self.desc_ctx['email_filter'] \
+                = _(" with email matching '%s'") % email
+        if data['name']:
+            # If the value is two words, then assume they are first name and
+            # last name
+            parts = data['name'].split()
+            # always true filter
+            condition = Q()
+            for part in parts:
+                condition &= Q(first_name__icontains=part) \
+                    | Q(last_name__icontains=part)
+            queryset = queryset.filter(condition).distinct()
+            self.desc_ctx['name_filter'] \
+                = _(" with name matching '%s'") % data['name']
+
+        return queryset
+
+    def get_table(self, **kwargs):
+        table = super().get_table(**kwargs)
+        table.caption = self.desc_template % self.desc_ctx
+        return table
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.form
+        return context
+
+    def make_inactive(self, request, users):
+        return self._change_users_active_status(users, False)
+
+    def make_active(self, request, users):
+        return self._change_users_active_status(users, True)
+
+    def _change_users_active_status(self, users, value):
+        for user in users:
+            if not user.is_superuser:
+                user.is_agent = value
+                user.save()
+        messages.info(self.request, _("Agent's status successfully changed"))
+        return redirect('agents_dashboard:agents-list')
+
 
