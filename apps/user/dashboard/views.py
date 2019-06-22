@@ -28,6 +28,7 @@ User = get_user_model()
 Account = get_model('oscar_accounts', 'Account')
 Transfer = get_model('oscar_accounts', 'Transfer')
 Transaction = get_model('oscar_accounts', 'Transaction')
+Agents = get_model('user', 'AgentProfile')
 
 
 class IndexView(BulkEditMixin, FormMixin, SingleTableView):
@@ -132,8 +133,8 @@ class AgentDetailView(DetailView):
     def get(self, request, *args, **kwargs):
         try:
             from apps.user.models import User
-            requested_user = User.objects.get(id=kwargs['pk'])
-            self.account = Account.objects.get(primary_user=requested_user) 
+            self.requested_user = User.objects.get(id=kwargs['pk'])
+            self.account = Account.objects.get(primary_user=self.requested_user) 
         except Account.DoesNotExist:
             self.account = None
         return super(AgentDetailView, self).get(
@@ -141,8 +142,38 @@ class AgentDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         ctx = super(AgentDetailView, self).get_context_data(**kwargs)
-        
+        try:
+            self.agent_profile = Agents.objects.get(user=self.requested_user)
+        except Agents.DoesNotExist:
+            self.agent_profile = None
+
+        if self.agent_profile != None and self.agent_profile.name and self.agent_profile.email:
+            ctx['agents'] = self.agent_profile
+
         if self.account != None:
             ctx['account'] = self.account
             ctx['transactions'] = self.account.transactions.all().order_by('-date_created')
         return ctx
+
+
+def change_agent_status(self, request, *args, **kwargs):
+    try:
+        from apps.user.models import User
+        requested_user = User.objects.get(id=kwargs['pk'])
+        old_status = requested_user.is_agent
+        requested_user.is_agent = not requested_user.is_agent
+        requested_user.save()
+    except User.DoesNotExist:
+            requested_user = None
+
+    if requested_user and old_status != requested_user.is_agent:
+        messages.info(request, _("Agent's status successfully changed"))
+        return redirect('agents_dashboard:agents-list')
+    else:
+        messages.info(self.request._request, _(
+            "Agent's status couldn't change. Please try again."))
+        return reverse(
+            'agents_dashboard:agent-detail', kwargs={'pk': kwargs['pk']}
+        )
+        # return redirect('agents_dashboard:agent-detail')
+
