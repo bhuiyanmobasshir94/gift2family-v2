@@ -31,13 +31,13 @@ class WalletView(generic.ListView):
     template_name = 'customer/wallet/balance-list.html'
     active_tab = 'wallet'
     page_title = _('Wallet')
-    context_object_name = 'account'
+    context_object_name = 'accounts'
 
     def get_queryset(self):
         """Return customer's addresses"""
         wallets = Wallet.objects.filter(primary_user=self.request.user)
         if wallets:
-            return wallets[0]
+            return wallets
         else:
             return wallets
 
