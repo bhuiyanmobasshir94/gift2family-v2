@@ -40,10 +40,9 @@ class Repository(CoreRepository):
                 countries=shipping_addr.country.code)
             if weightbased_set:
                 methods = (list(weightbased_set))
-                # methods += [HandDelivery()]
+                methods += [HandDelivery()]
             else:
                 methods = []
         else:
-            # methods = [HandDelivery()]
-            methods = []
+            methods = [HandDelivery()]
         return methods
