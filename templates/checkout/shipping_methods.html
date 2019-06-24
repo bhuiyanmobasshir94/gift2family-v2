@@ -33,6 +33,22 @@
             {% if method.description %}
             <p>{{ method.description|safe }}</p>
             {% endif %}
+            {% if not method.code == "hand-delivery" %}
+            <!-- {%for line in request.basket.lines.all%}
+            <small>{{line.product|safe}} - {{line.quantity|safe}} pc(s) * {{line.product.attr.weight|safe}}
+                kg</small><br>
+            {%endfor%} -->
+            <small>Total basket weight is {{basket_weight|safe}} kg</small><br>
+            {% if bands %}
+            {% for band in bands%}
+                {% if basket_weight >= band.weight_from and basket_weight <= band.weight_to %}
+                <small>*{{band.weight_from|safe}} kg - {{band.weight_to|safe}} kg -
+                    {{band.charge|currency:basket.currency }} applicable for your basket.
+                </small><br>
+                {% endif %}
+            {% endfor %}
+            {% endif %}
+            {% endif %}
             {% if method.is_discounted %}
             <small>
                 {% shipping_charge_discount method basket as discount %}

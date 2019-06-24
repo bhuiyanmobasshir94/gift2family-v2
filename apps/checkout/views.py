@@ -12,6 +12,11 @@ from oscar_accounts import exceptions as act_exceptions
 from oscar_accounts import security
 from oscar_accounts.checkout import forms, gateway
 from oscar_accounts.checkout.allocation import Allocations
+from oscar.core.loading import get_class, get_classes, get_model
+
+Scale = get_class('shipping.scales', 'Scale')
+WeightBand = get_class(
+    'shipping.models', 'WeightBand')
 
 
 class PaymentDetailsView(views.PaymentDetailsView):
@@ -167,3 +172,15 @@ class PaymentDetailsView(views.PaymentDetailsView):
 
     def set_account_allocations(self, allocations):
         return self.checkout_session._set('accounts', 'allocations', Allocations.serialize(allocations))
+
+
+
+class ShippingMethodView(views.ShippingMethodView):
+        
+        def get_context_data(self, **kwargs):
+            kwargs = super(ShippingMethodView, self).get_context_data(**kwargs)
+            weight = Scale().weigh_basket(basket=self.request.basket)
+            bands = WeightBand.objects.filter(upper_limit__gte=weight)
+            kwargs['basket_weight'] = weight
+            kwargs['bands'] = bands
+            return kwargs
