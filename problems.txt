@@ -1,0 +1,2 @@
+C:\Users\Mobasshir-Bhuiyan\Anaconda3\envs\oscar_2\lib\site-packages\django\views\generic\list.py:88: UnorderedObjectListWarning: Pagination may yield inconsistent results with an unordered object_list: <class 'oscar_accounts.models.Account'> QuerySet.
+  allow_empty_first_page=allow_empty_first_page, **kwargs)

@@ -28,6 +28,9 @@
 <li{% if active_tab == 'wallet' %} class="active" {% endif %}>
     <a href="{% url 'account-view' %}">{% trans "Wallet" %}</a>
 </li>
+<li{% if active_tab == 'agent-transaction' %} class="active" {% endif %}>
+    <a href="{% url 'transaction-view' %}">{% trans "Agent Transactions" %}</a>
+</li>
 {%if user.agentprofile%}
 <li{% if active_tab == 'agent-profile' %} class="active" {% endif %}>
     <a href="{% url 'agent-profile-view' %}">{% trans "Agent Profile" %}</a>

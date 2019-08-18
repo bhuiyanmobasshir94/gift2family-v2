@@ -14,6 +14,10 @@ from apps.user.decorators import agent_login_required, non_agent_login_required
 
 wallet_view = get_class(
     'apps.user.views', 'WalletView')
+transaction_view = get_class(
+    'apps.user.views', 'AgentTransactionView')
+transfer_view = get_class(
+    'apps.user.views', 'AgentTransferDetailView')
 agent_profile_view = get_class(
     'apps.user.views', 'AgentProfileView')
 agent_profile_update_view = get_class(
@@ -24,6 +28,10 @@ agent_profile_create_view = get_class(
 urlpatterns = [
     url(r'^wallet/', agent_login_required(wallet_view.as_view()),
     name='account-view'),
+    url(r'^transactions/', agent_login_required(transaction_view.as_view()),
+        name='transaction-view'),
+    url(r'^transfers/(?P<reference>[A-Z0-9]{32})/$', transfer_view.as_view(),
+        name='agent-transfers-detail'),
     url(r'^agent-profile/', agent_login_required(agent_profile_view.as_view()),
         name='agent-profile-view'),
     url(r'^agent-profile-update/', agent_login_required(agent_profile_update_view.as_view()),

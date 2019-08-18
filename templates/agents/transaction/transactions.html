@@ -1,0 +1,43 @@
+{% extends "oscar/customer/baseaccountpage.html" %}
+{% load currency_filters %}
+{% load i18n %}
+
+{% block extra_breadcrumbs %}
+<li>
+    {% trans 'Agents' %}
+</li>
+{% endblock %}
+
+{% block tabcontent %}
+
+{% if is_blocked %}
+<p>{% trans "Your IP address is currently blocked.  Please try again later." %}</p>
+{% else %}
+<table id="" class="table table-striped table-bordered">
+    {% if transactions %}
+    <tr>
+        <th>{% trans "Transfer" %}</th>
+        <th>{% trans "Amount" %}</th>
+        <th>{% trans "Description" %}</th>
+        <th>{% trans "Authorised by" %}</th>
+        <th>{% trans "Date" %}</th>
+    </tr>
+    {% for txn in transactions %}
+    <tr>
+        <td><a href="{% url 'agent-transfers-detail' txn.transfer.reference %}">{{ txn.transfer }}</a>
+        </td>
+        <td>{{ txn.amount|currency }}</td>
+        <td>{{ txn.transfer.description|default:"-" }}</td>
+        <td>{{ txn.transfer.user|default:"-" }}</td>
+        <td>{{ txn.date_created }}</td>
+    </tr>
+    {% endfor %}
+    {% else %}
+    <tr>
+        <td>{% trans "No Transactions." %}</td>
+    </tr>
+    {% endif %}
+</table>
+{% endif %}
+
+{% endblock tabcontent %}

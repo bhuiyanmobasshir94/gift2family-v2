@@ -16,7 +16,10 @@ CommunicationEventType = get_model('customer', 'CommunicationEventType')
 
 
 Wallet = get_model('oscar_accounts', 'Account')
-country = get_model('address','Country')
+country = get_model('address', 'Country')
+Account = get_model('oscar_accounts', 'Account')
+Transfer = get_model('oscar_accounts', 'Transfer')
+Transaction = get_model('oscar_accounts', 'Transaction')
 
 User = get_user_model()
 from .models import AgentProfile
@@ -25,6 +28,50 @@ from .models import AgentProfile
 # Wallet
 # ------------
 
+
+class AgentTransactionView(generic.ListView):
+    """Agent transactions"""
+    template_name = 'agents/transaction/transactions.html'
+    active_tab = 'agent-transaction'
+    page_title = _('Transactions')
+    context_object_name = 'transactions'
+
+    def get_queryset(self):
+        """ Return Transactions """
+        try:
+            self.account = Account.objects.get(primary_user=self.request.user)
+        except Account.DoesNotExist:
+            self.account = None
+        if self.account:
+            transactions = self.account.transactions.all().order_by('-date_created')
+            return transactions
+        else:
+            return None
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['is_blocked'] = security.is_blocked(self.request)
+        ctx['active_tab'] = 'agent-transaction'
+        ctx['page_title'] = _('Transactions')
+        return ctx
+
+class AgentTransferDetailView(generic.DetailView):
+    model = Transfer
+    context_object_name = 'transfer'
+    page_title = _('Transfers')
+    template_name = 'agents/transaction/transfer_detail.html'
+
+    def get_object(self, queryset=None):
+        if queryset is None:
+            queryset = self.get_queryset()
+        return queryset.get(reference=self.kwargs['reference'])
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        ctx['is_blocked'] = security.is_blocked(self.request)
+        ctx['active_tab'] = 'agent-transaction'
+        ctx['page_title'] = _('Transfers')
+        return ctx
 
 class WalletView(generic.ListView):
     """Wallet"""

@@ -1,0 +1,66 @@
+{% extends "oscar/customer/baseaccountpage.html" %}
+{% load currency_filters %}
+{% load i18n %}
+
+{% block breadcrumbs %}
+<ul class="breadcrumb">
+    <li>
+        <a href="#">{% trans "Home" %}</a>
+    </li>
+    <li>
+        <a href="#">{% trans "Accounts" %}</a>
+    </li>
+    <li>
+        <a href="#">{% trans "Agents" %}</a>
+    </li>
+    <li>
+        <a href="{% url 'transaction-view' %}">{% trans "Transactions" %}</a>
+    </li>
+    <li class="active">{{ transfer.reference }}</li>
+</ul>
+{% endblock %}
+
+{% block tabcontent %}
+
+{% if is_blocked %}
+<p>{% trans "Your IP address is currently blocked.  Please try again later." %}</p>
+{% else %}
+<table id="" class="table">
+    <tbody>
+        <tr>
+            <th>{% trans "Reference" %}</th>
+            <td>{{ transfer.reference }}</td>
+        </tr>
+        <tr>
+            <th>{% trans "Source" %}</th>
+            <td><a href="#">{{ transfer.source }}</a></td>
+        </tr>
+        <tr>
+            <th>{% trans "Destination" %}</th>
+            <td><a href="#">{{ transfer.destination }}</a></td>
+        </tr>
+        <tr>
+            <th>{% trans "Amount" %}</th>
+            <td>{{ transfer.amount|currency }}</td>
+        </tr>
+        <tr>
+            <th>{% trans "Merchant reference" %}</th>
+            <td>{{ transfer.merchant_reference|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>{% trans "Description" %}</th>
+            <td>{{ transfer.description|default:"-" }}</td>
+        </tr>
+        <tr>
+            <th>{% trans "Authorised by" %}</th>
+            <td>{{ transfer.user }}</td>
+        </tr>
+        <tr>
+            <th>{% trans "Date" %}</th>
+            <td>{{ transfer.date_created }}</td>
+        </tr>
+    </tbody>
+</table>
+{% endif %}
+
+{% endblock tabcontent %}
