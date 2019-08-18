@@ -1,3 +1,4 @@
+from itertools import chain
 from django.contrib import messages
 from .forms import AgentForm,AgentRequestForm
 from oscar_accounts import security
@@ -39,11 +40,15 @@ class AgentTransactionView(generic.ListView):
     def get_queryset(self):
         """ Return Transactions """
         try:
-            self.account = Account.objects.get(primary_user=self.request.user)
+            self.account = Account.objects.filter(
+                primary_user=self.request.user)
         except Account.DoesNotExist:
             self.account = None
         if self.account:
-            transactions = self.account.transactions.all().order_by('-date_created')
+            transactions = []
+            for a in self.account:
+                transactions.append(a.transactions.all().order_by('-date_created'))
+            transactions = list(chain(*transactions))
             return transactions
         else:
             return None
