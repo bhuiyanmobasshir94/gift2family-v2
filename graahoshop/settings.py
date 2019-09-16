@@ -351,3 +351,5 @@ DATABASES['default'].update(db_from_env)
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 OSCAR_HOMEPAGE = '/catalogue/'
+
+OSCAR_ACCOUNTS_DASHBOARD_ITEMS_PER_PAGE = 30

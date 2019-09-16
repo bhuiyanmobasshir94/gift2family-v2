@@ -1,3 +1,8 @@
+import datetime
+from decimal import Decimal as D
+from oscar_accounts.dashboard import forms, reports
+from oscar_accounts import exceptions, facade, names
+from oscar.templatetags.currency_filters import currency
 from itertools import chain
 from django.contrib import messages
 from .forms import AgentForm,AgentRequestForm
@@ -7,15 +12,15 @@ from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext_lazy as _
 from django.views import generic
 from oscar.core.compat import get_user_model
-from oscar.core.loading import (
-    get_class, get_classes, get_model, get_profile_class)
+from oscar.core.loading import (get_class, get_classes, get_model, get_profile_class)
 from django.contrib.sites.shortcuts import get_current_site
 from oscar.apps.customer.utils import get_password_reset_url
 from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 Dispatcher = get_class('customer.utils', 'Dispatcher')
 CommunicationEventType = get_model('customer', 'CommunicationEventType')
 
-
+AccountType = get_model('oscar_accounts', 'AccountType')
 Wallet = get_model('oscar_accounts', 'Account')
 country = get_model('address', 'Country')
 Account = get_model('oscar_accounts', 'Account')
@@ -35,7 +40,10 @@ class AgentTransactionView(generic.ListView):
     template_name = 'agents/transaction/transactions.html'
     active_tab = 'agent-transaction'
     page_title = _('Transactions')
+    form_class = forms.TransferSearchForm
+    description = _("Transactions")
     context_object_name = 'transactions'
+    paginate_by = getattr(settings, 'OSCAR_ACCOUNTS_DASHBOARD_ITEMS_PER_PAGE', 20)
 
     def get_queryset(self):
         """ Return Transactions """
@@ -47,14 +55,61 @@ class AgentTransactionView(generic.ListView):
         if self.account:
             transactions = []
             for a in self.account:
-                transactions.append(a.transactions.all().order_by('-date_created'))
-            transactions = list(chain(*transactions))
-            return transactions
+                # transactions.append(a.transactions.all().order_by('-date_created'))
+                queryset = a.transactions.all().order_by('-date_created')
+            # queryset = list(chain(*transactions))
+
+                if 'reference' not in self.request.GET:
+                    # Form not submitted
+                    self.form = self.form_class()
+                    return queryset
+                
+                self.form = self.form_class(self.request.GET)
+                if not self.form.is_valid():
+                    # Form submitted but invalid
+                    return queryset
+                
+                data = self.form.cleaned_data
+                desc_template = _(
+                    "Transfers %(reference)s %(date)s")
+                desc_ctx = {
+                    'reference': "",
+                    'date': "",
+                }
+
+                # if data['reference']:
+
+                #     queryset = queryset.filter(reference=data['reference'])
+                #     desc_ctx['reference'] = _(
+                #         " with reference '%s'") % data['reference']
+
+                if data['start_date'] and data['end_date']:
+                        # Add 24 hours to make search inclusive
+                    date_from = data['start_date']
+                    date_to = data['end_date'] + datetime.timedelta(days=1)
+                    queryset = queryset.filter(date_created__gte=date_from).filter(
+                        date_created__lt=date_to)
+                    desc_ctx['date'] = _(" created between %(start_date)s and %(end_date)s") % {
+                        'start_date': data['start_date'],
+                        'end_date': data['end_date']}
+                elif data['start_date']:
+                    queryset = queryset.filter(date_created__gte=data['start_date'])
+                    desc_ctx['date'] = _(" created since %s") % data['start_date']
+                elif data['end_date']:
+                    date_to = data['end_date'] + datetime.timedelta(days=1)
+                    queryset = queryset.filter(date_created__lt=date_to)
+                    desc_ctx['date'] = _(" created before %s") % data['end_date']
+                transactions.append(queryset)
+            queryset = list(chain(*transactions))
+            self.description = desc_template % desc_ctx
+            return queryset
         else:
             return None
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        ctx['form'] = self.form
+        ctx['queryset_description'] = self.description
         ctx['is_blocked'] = security.is_blocked(self.request)
         ctx['active_tab'] = 'agent-transaction'
         ctx['page_title'] = _('Transactions')
