@@ -1,3 +1,10 @@
+from django.views import generic
+from django.utils.translation import gettext as _
+from django.utils.http import urlquote
+from django.urls import reverse, reverse_lazy
+from django.shortcuts import redirect
+from django.contrib.auth import login
+import logging
 from decimal import Decimal as D
 
 from django import http
@@ -17,6 +24,8 @@ from oscar.core.loading import get_class, get_classes, get_model
 Scale = get_class('shipping.scales', 'Scale')
 WeightBand = get_class(
     'shipping.models', 'WeightBand')
+
+Order = get_model('order', 'Order')
 
 
 class PaymentDetailsView(views.PaymentDetailsView):
@@ -179,8 +188,56 @@ class ShippingMethodView(views.ShippingMethodView):
         
         def get_context_data(self, **kwargs):
             kwargs = super(ShippingMethodView, self).get_context_data(**kwargs)
-            weight = Scale().weigh_basket(basket=self.request.basket)
+            weight = Scale(default_weight=1.0).weigh_basket(
+                basket=self.request.basket)
             bands = WeightBand.objects.filter(upper_limit__gte=weight)
             kwargs['basket_weight'] = weight
             kwargs['bands'] = bands
             return kwargs
+
+
+# =========
+# Thank you
+# =========
+
+
+class ThankYouView(generic.DetailView):
+    """
+    Displays the 'thank you' page which summarises the order just submitted.
+    """
+    template_name = 'oscar/checkout/thank_you.html'
+    context_object_name = 'order'
+
+    def get_object(self):
+        # We allow superusers to force an order thank-you page for testing
+        order = None
+        if self.request.user.is_superuser:
+            if 'order_number' in self.request.GET:
+                order = Order._default_manager.get(
+                    number=self.request.GET['order_number'])
+            elif 'order_id' in self.request.GET:
+                order = Order._default_manager.get(
+                    id=self.request.GET['order_id'])
+
+        if not order:
+            if 'checkout_order_id' in self.request.session:
+                order = Order._default_manager.get(
+                    pk=self.request.session['checkout_order_id'])
+            else:
+                raise http.Http404(_("No order found"))
+        basket_total = order.total_excl_tax - order.shipping_excl_tax
+
+        return order
+
+    def get_context_data(self, *args, **kwargs):
+        ctx = super().get_context_data(*args, **kwargs)
+        # Remember whether this view has been loaded.
+        # Only send tracking information on the first load.
+        key = 'order_{}_thankyou_viewed'.format(ctx['order'].pk)
+        if not self.request.session.get(key, False):
+            self.request.session[key] = True
+            ctx['send_analytics_event'] = True
+        else:
+            ctx['send_analytics_event'] = False
+
+        return ctx
