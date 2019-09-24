@@ -242,6 +242,11 @@ OSCAR_DASHBOARD_NAVIGATION.append(
                 'url_name': 'agents_dashboard:agent-request-view',
                 'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
             },
+            {
+                'label': _('Agent Interest Rate'),
+                'url_name': 'agents_dashboard:agent-interest-rate',
+                'access_fn': lambda user, url_name, url_args, url_kwargs: user.is_staff,
+            },
         ]
     })
 

@@ -72,3 +72,13 @@ class AgentProfile(models.Model):
     def __str__(self):
         return self.name
     
+class AgentInterestRate(models.Model):
+    name = models.CharField(
+        _("Interest Rate Name"), max_length=30, blank=False, default="", editable=True)
+    interest_rate = models.FloatField(default=0.0)
+    class Meta:
+        verbose_name = _('Agent interest rate')
+        verbose_name_plural = _('Agents interest rate')
+    
+    def __str__(self):
+        return str(self.name)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import User,AgentProfile
+from .models import User, AgentProfile, AgentInterestRate
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -9,5 +9,6 @@ class UserAdmin(admin.ModelAdmin):
 
 admin.site.register(User, UserAdmin)
 admin.site.register(AgentProfile)
+admin.site.register(AgentInterestRate)
 
 

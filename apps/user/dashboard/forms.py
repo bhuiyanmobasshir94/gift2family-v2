@@ -12,6 +12,7 @@ from oscar_accounts import codes, names
 
 Account = get_model('oscar_accounts', 'Account')
 AccountType = get_model('oscar_accounts', 'AccountType')
+InterestRate = get_model('user', 'AgentInterestRate')
 
 
 class SearchForm(forms.Form):
@@ -214,3 +215,17 @@ class DateForm(forms.Form):
 class DateRangeForm(forms.Form):
     start_date = forms.DateField(label=_("From"), widget=DatePickerInput)
     end_date = forms.DateField(label=_("To"), widget=DatePickerInput)
+
+class AgentInterestRateForm(forms.ModelForm):
+    def __init__(self, ir, *args, **kwargs):
+        # self.user = user
+        kwargs['instance'] = ir
+        super().__init__(*args, **kwargs)
+        if 'name' in self.fields:
+            self.fields['name'].required = True
+        if 'interest_rate' in self.fields:
+            self.fields['interest_rate'].required = True
+    class Meta:
+        model = InterestRate
+        fields = ('name', 'interest_rate')
+        

@@ -1,4 +1,5 @@
     
+from .forms import AgentInterestRateForm
 from django.conf import settings
 from django.contrib import messages
 from django.db.models import Q
@@ -14,6 +15,7 @@ from django_tables2 import SingleTableView
 from oscar.core.compat import get_user_model
 from oscar.core.loading import get_class, get_classes, get_model
 from oscar.views.generic import BulkEditMixin
+from django.urls import reverse, reverse_lazy
 
 from django.shortcuts import get_object_or_404
 
@@ -29,6 +31,7 @@ Account = get_model('oscar_accounts', 'Account')
 Transfer = get_model('oscar_accounts', 'Transfer')
 Transaction = get_model('oscar_accounts', 'Transaction')
 Agents = get_model('user', 'AgentProfile')
+InterestRate = get_model('user', 'AgentInterestRate')
 
 
 class IndexView(BulkEditMixin, FormMixin, SingleTableView):
@@ -271,5 +274,33 @@ class AgentRequestView(BulkEditMixin, FormMixin, SingleTableView):
                 user.save()
         messages.info(self.request, _("Agent's status successfully changed"))
         return redirect('agents_dashboard:agents-list')
+
+
+class AgentInterestRateView(BulkEditMixin, FormMixin, SingleTableView):
+    template_name = 'agents/dashboard/interest.html'
+    model = InterestRate
+    form_class = AgentInterestRateForm
+    success_url = reverse_lazy('agent-interest-rate')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['form'] = self.get_form(self.get_form_class())
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        try:
+            interest_rate = InterestRate.objects.get(name='ALL_AGENTS_APPLICABLE')
+            kwargs['ir'] = interest_rate
+        except InterestRate.DoesNotExist:
+            interest_rate = InterestRate.objects.create(
+                name='ALL_AGENTS_APPLICABLE')
+            kwargs['ir'] = interest_rate
+        return kwargs
+
+    def form_valid(self, form):
+        form.save(commit=True)
+        messages.success(self.request, _("Agent Interest Rate Updated"))
+        return redirect(self.get_success_url())
 
 

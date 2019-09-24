@@ -14,6 +14,7 @@ class AgentsDashboardApplication(Application):
     agent_detail_view = views.AgentDetailView
     change_agent_status = views.change_agent_status
     agent_request_view = views.AgentRequestView
+    interest_view = views.AgentInterestRateView
 
     def get_urls(self):
         urls = [
@@ -23,6 +24,9 @@ class AgentsDashboardApplication(Application):
             url(r'^requests/$',
                 self.agent_request_view.as_view(),
                 name='agent-request-view'),
+            url(r'^interest_rate/$',
+                self.interest_view.as_view(),
+                name='agent-interest-rate'),
             url(r'^(?P<pk>-?\d+)/$',
                 self.agent_detail_view.as_view(), name='agent-detail'),
             url(r'^(?P<pk>-?\d+)/change-agent-status/$',
