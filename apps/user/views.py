@@ -108,6 +108,16 @@ class AgentTransactionView(generic.ListView):
 
     def get_context_data(self, **kwargs):
         ctx = super().get_context_data(**kwargs)
+        try:
+            self.account = Account.objects.filter(primary_user=self.request.user)
+        except Account.DoesNotExist:
+            self.account = None
+        if self.account:
+            transactions = []
+            for a in self.account:
+                queryset = a.transactions.all().order_by('-date_created')
+                transactions.append(queryset)
+            ctx['transactions'] = list(chain(*transactions))
         ctx['form'] = self.form
         ctx['queryset_description'] = self.description
         ctx['is_blocked'] = security.is_blocked(self.request)
