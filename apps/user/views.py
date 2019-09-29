@@ -100,7 +100,9 @@ class AgentTransactionView(generic.ListView):
                     queryset = queryset.filter(date_created__lt=date_to)
                     desc_ctx['date'] = _(" created before %s") % data['end_date']
                 else:
-                    queryset = queryset
+                    date_to = datetime.date.today + datetime.timedelta(days=1)
+                    queryset = queryset.filter(date_created__lt=date_to)
+                    desc_ctx['date'] = _(" created before %s") % data['end_date']
                 transactions.append(queryset)
             queryset = list(chain(*transactions))
             self.description = desc_template % desc_ctx
