@@ -21,11 +21,21 @@ from oscar_accounts.checkout import forms, gateway
 from oscar_accounts.checkout.allocation import Allocations
 from oscar.core.loading import get_class, get_classes, get_model
 
+from oscar_accounts import names
+from oscar_accounts import models, exceptions, facade
+from django.contrib.auth import get_user_model
+from decimal import Decimal
+User = get_user_model()
+
+Account = get_model('oscar_accounts', 'Account')
+source_account = Account.objects.get(name=names.UNPAID_ACCOUNTS)
+
 Scale = get_class('shipping.scales', 'Scale')
 WeightBand = get_class(
     'shipping.models', 'WeightBand')
 
 Order = get_model('order', 'Order')
+interest_rate = get_model('user', 'AgentInterestRate')
 
 
 class PaymentDetailsView(views.PaymentDetailsView):
@@ -225,7 +235,25 @@ class ThankYouView(generic.DetailView):
                     pk=self.request.session['checkout_order_id'])
             else:
                 raise http.Http404(_("No order found"))
-        basket_total = order.total_excl_tax - order.shipping_excl_tax
+        
+        if self.request.user.is_agent and models.Account.active.filter(primary_user=self.request.user): ##
+            basket_total = order.total_excl_tax - order.shipping_excl_tax
+            ir = interest_rate.objects.get(name='ALL_AGENTS_APPLICABLE')
+            amount = float(basket_total) * (ir.interest_rate / 100)
+            destination_account = Account.objects.filter(primary_user=self.request.user)[0] ##
+            staff = User.objects.filter(is_superuser= True)[0] ##
+            try:
+                trans = facade.transfer(source=source_account,
+                                        destination=destination_account,
+                                        amount=D(amount),
+                                        user=staff,
+                                        description=f'Commission for order# {order.number} from admin with {ir.interest_rate}% commission rate.')
+            except exceptions.AccountException as e:
+                messages.error(self.request,
+                            _("Unable to fund commission: %s") % e)
+            else:
+                messages.success(
+                    self.request, _("Hurray! Commssion successfully added to the account."))
 
         return order
 
